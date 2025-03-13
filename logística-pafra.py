@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import folium_static
+from geopy.distance import geodesic
 
 # Dados das zonas, bairros e coordenadas
 data = {
@@ -28,18 +29,20 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Definir pontos de **estoque**
+# Definir pontos de **estoque** (novos pontos adicionados)
 pontos_estoque = {
     "Santa Mônica (Estoque)": (-18.9395, -48.2820),
-    "Madalena (Estoque)": (-18.9100, -48.3000)
+    "Madalena (Estoque)": (-18.9100, -48.3000),
+    "Rua Professor Maria Castilho, 295": (-18.9180, -48.2800),  # Novo ponto
+    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.9200, -48.3050)  # Novo ponto
 }
 
 # Título
 st.title('📦 Gestão de Logística - Uberlândia')
 
-st.write("""
+st.write("""  
 🚚 **Análise de Estoque e Entrega em Uberlândia**  
-🔍 Escolha uma zona para ver os bairros e as principais vias de entrega.
+🔍 Escolha uma zona para ver os bairros, as principais vias de entrega e otimize sua logística.
 """)
 
 # **Campo de seleção de zona**
@@ -57,7 +60,7 @@ if zona_selecionada:
     st.write(vias)
 
 # **Mapa das Zonas e Estoques**
-st.subheader('🗺️ Mapa de Uberlândia com Estoques')
+st.subheader('🗺️ Mapa de Uberlândia com Estoques e Rotas de Entrega')
 
 mapa = folium.Map(location=[-18.9186, -48.2769], zoom_start=12)
 
@@ -70,7 +73,7 @@ for _, row in df.iterrows():
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(mapa)
 
-# Marcar pontos de estoque corretamente
+# Marcar pontos de estoque corretamente (incluindo os novos pontos)
 for nome, coord in pontos_estoque.items():
     folium.Marker(
         location=coord,
@@ -79,4 +82,19 @@ for nome, coord in pontos_estoque.items():
         icon=folium.Icon(color="green", icon="cloud")  # Estoque em verde
     ).add_to(mapa)
 
+# **Exibir rotas de entrega**
+# Vamos calcular a distância entre os pontos de estoque e os bairros da zona selecionada
+if zona_selecionada:
+    coordenadas_zona = df[df['Zona'] == zona_selecionada][['Latitude', 'Longitude']].values[0]
+    for nome, coord in pontos_estoque.items():
+        distancia = geodesic(coord, coordenadas_zona).km
+        folium.Marker(
+            location=coord,
+            popup=f"{nome} - Distância até a Zona: {distancia:.2f} km",
+            tooltip=f"{nome} - {distancia:.2f} km",
+            icon=folium.Icon(color="green", icon="cloud")
+        ).add_to(mapa)
+
+# Exibir o mapa interativo
 folium_static(mapa)
+
