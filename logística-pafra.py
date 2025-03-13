@@ -3,6 +3,7 @@ import pandas as pd
 import folium
 from streamlit_folium import folium_static
 from geopy.distance import geodesic
+from folium import PolyLine
 
 # Dados das zonas, bairros e coordenadas
 data = {
@@ -29,11 +30,11 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Definir pontos de **estoque** com as novas coordenadas
+# Definir pontos de estoque com as novas coordenadas
 pontos_estoque = {
     "Santa Mônica (Estoque)": (-18.9395, -48.2820),
-    "Rua Professor Maria Castilho, 295": (-18.9234969, -48.2331072),  # Coordenada corrigida
-    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.8932489, -48.2712858)  # Coordenada corrigida
+    "Rua Professor Maria Castilho, 295": (-18.9234969, -48.2331072),
+    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.8932489, -48.2712858)
 }
 
 # Título
@@ -46,9 +47,6 @@ st.write("""
 
 # **Campo de seleção de zona**
 zona_selecionada = st.selectbox('🎯 Selecione a Zona:', df['Zona'].unique())
-
-# **Campo de seleção de raio**
-raio = st.slider('🔘 Defina o raio de entrega (em km):', min_value=1, max_value=50, value=10)
 
 # **Exibir bairros e vias correspondentes**
 if zona_selecionada:
@@ -79,20 +77,26 @@ for _, row in df.iterrows():
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(mapa)
 
-# Marcar pontos de estoque corretamente
+# Marcar pontos de estoque e desenhar rotas entre os pontos de estoque e a zona selecionada
+distancias = []
 for nome, coord in pontos_estoque.items():
+    distancia = geodesic(coord, coordenadas_zona).km
+    distancias.append({"Ponto de Estoque": nome, "Distância (km)": f"{distancia:.2f}"})
+    
     folium.Marker(
         location=coord,
-        popup=f"{nome}",
-        tooltip=f"{nome}",
+        popup=f"{nome} - Distância até a Zona: {distancia:.2f} km",
+        tooltip=f"{nome} - {distancia:.2f} km",
         icon=folium.Icon(color="green", icon="cloud")
     ).add_to(mapa)
+    
+    # Desenhar a rota
+    rota = [coord, coordenadas_zona]
+    PolyLine(rota, color="blue", weight=2.5, opacity=1).add_to(mapa)
 
 # Exibir o mapa interativo
 folium_static(mapa)
 
-
-# Exibir o mapa interativo
-folium_static(mapa)
-
-
+# Exibir distâncias em uma tabela
+st.subheader("📊 Distâncias entre Pontos de Estoque e a Zona Selecionada")
+st.table(pd.DataFrame(distancias))
