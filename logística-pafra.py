@@ -38,7 +38,7 @@ pontos_estoque = {
 st.title('📦 Gestão de Logística - Uberlândia')
 
 st.write("""
-🚚 **Análise de Estoque e Entrega em Uberlândia**  
+🚚 **Entrega em Uberlândia**  
 🔍 Escolha uma zona para ver os bairros e as principais vias de entrega.
 """)
 
