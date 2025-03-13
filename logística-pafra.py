@@ -57,7 +57,7 @@ if zona_selecionada:
     st.write(vias)
 
 # **Mapa das Zonas e Estoques**
-st.subheader('🗺️ Mapa de Uberlândia com Estoques')
+st.subheader('🗺️ Mapa de Uberlândia + Ponto de Estoques')
 
 mapa = folium.Map(location=[-18.9186, -48.2769], zoom_start=12)
 
