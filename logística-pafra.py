@@ -100,3 +100,4 @@ for nome, coord in pontos_estoque.items():
     ).add_to(mapa)
 
 folium_static(mapa)
+
