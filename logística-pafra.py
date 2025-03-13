@@ -32,6 +32,7 @@ df = pd.DataFrame(data)
 
 # Definir pontos de estoque com as novas coordenadas
 pontos_estoque = {
+    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
     "Rua Professor Maria Castilho, 295": (-18.9234969, -48.2331072),
     "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.8932489, -48.2712858)
 }
@@ -44,7 +45,8 @@ st.write("""
 🔍 Escolha uma zona para ver os bairros, as principais vias de entrega e otimize sua logística.
 """)
 
-
+# **Campo de seleção de zona**
+zona_selecionada = st.selectbox('🎯 Selecione a Zona:', df['Zona'].unique())
 
 # **Exibir bairros e vias correspondentes**
 if zona_selecionada:
@@ -76,11 +78,8 @@ for _, row in df.iterrows():
     ).add_to(mapa)
 
 # Marcar pontos de estoque e desenhar rotas entre os pontos de estoque e a zona selecionada
-distancias = []
 for nome, coord in pontos_estoque.items():
     distancia = geodesic(coord, coordenadas_zona).km
-    distancias.append({"Ponto de Estoque": nome, "Distância (km)": f"{distancia:.2f}"})
-    
     folium.Marker(
         location=coord,
         popup=f"{nome} - Distância até a Zona: {distancia:.2f} km",
@@ -95,6 +94,3 @@ for nome, coord in pontos_estoque.items():
 # Exibir o mapa interativo
 folium_static(mapa)
 
-# Exibir distâncias em uma tabela
-st.subheader("📊 Distâncias entre Pontos de Estoque e a Zona Selecionada")
-st.table(pd.DataFrame(distancias))
