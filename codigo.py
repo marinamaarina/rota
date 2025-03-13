@@ -35,7 +35,9 @@ pontos_estoque = {
 # --- LAYOUT ---
 st.set_page_config(page_title="Logística Uberlândia", layout="wide")
 
-st.markdown("<h1 style='text-align: center; color: #333;'>📦 Gestão de Logística</h1>", unsafe_allow_html=True)
+# TÍTULO COM COR FORTE
+st.markdown("<h1 style='text-align: center; color: #D72638;'>📦 Gestão de Logística</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border:2px solid #D72638'>", unsafe_allow_html=True)
 
 # --- SELEÇÃO DE ZONA ---
 zona_selecionada = st.selectbox('🔍 Escolha uma Zona:', df['Zona'])
