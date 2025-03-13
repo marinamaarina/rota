@@ -29,11 +29,10 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Definir pontos de **estoque**
+# Definir pontos de **estoque** com as novas coordenadas
 pontos_estoque = {
-    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
-    "Rua Professor Maria Castilho, 295": (-18.9110, -48.2765),  # Coordenada ajustada
-    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.9245, -48.3060)  # Coordenada ajustada
+    "Rua Professor Maria Castilho, 295": (-18.9234969, -48.2331072),  # Coordenada corrigida
+    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.8932489, -48.2712858)  # Coordenada corrigida
 }
 
 # Título
