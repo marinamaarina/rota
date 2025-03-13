@@ -4,8 +4,6 @@ import folium
 from streamlit_folium import folium_static
 from geopy.distance import geodesic
 from folium import PolyLine
-import requests
-import json
 
 # Dados das zonas, bairros e coordenadas
 data = {
@@ -34,31 +32,9 @@ df = pd.DataFrame(data)
 
 # Definir pontos de estoque com as novas coordenadas
 pontos_estoque = {
-    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
     "Rua Professor Maria Castilho, 295": (-18.9234969, -48.2331072),
     "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.8932489, -48.2712858)
 }
-
-# Chave da API OpenRouteService
-API_KEY = "5b3ce3597851110001cf62481273387ba4aa44c5a315412263494881"
-
-# Função para calcular a rota usando a API OpenRouteService
-def calcular_rota(origem, destino):
-    url = "https://api.openrouteservice.org/v2/directions/driving-car"
-    headers = {
-        "Authorization": API_KEY,
-        "Content-Type": "application/json"
-    }
-    body = {
-        "coordinates": [origem, destino],
-        "instructions": "false"
-    }
-    response = requests.post(url, headers=headers, json=body)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        st.error(f"Erro ao calcular a rota: {response.status_code}")
-        return None
 
 # Título
 st.title('📦 Gestão de Logística - Uberlândia')
@@ -68,8 +44,7 @@ st.write("""
 🔍 Escolha uma zona para ver os bairros, as principais vias de entrega e otimize sua logística.
 """)
 
-# **Campo de seleção de zona**
-zona_selecionada = st.selectbox('🎯 Selecione a Zona:', df['Zona'].unique())
+
 
 # **Exibir bairros e vias correspondentes**
 if zona_selecionada:
@@ -100,7 +75,7 @@ for _, row in df.iterrows():
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(mapa)
 
-# Marcar pontos de estoque e calcular rotas
+# Marcar pontos de estoque e desenhar rotas entre os pontos de estoque e a zona selecionada
 distancias = []
 for nome, coord in pontos_estoque.items():
     distancia = geodesic(coord, coordenadas_zona).km
@@ -113,18 +88,9 @@ for nome, coord in pontos_estoque.items():
         icon=folium.Icon(color="green", icon="cloud")
     ).add_to(mapa)
     
-    # Calcular rota usando OpenRouteService
-    origem = [coord[1], coord[0]]  # OpenRouteService espera [longitude, latitude]
-    destino = [coordenadas_zona[1], coordenadas_zona[0]]
-    rota_data = calcular_rota(origem, destino)
-    
-    if rota_data:
-        # Extrair coordenadas da rota
-        coordenadas_rota = rota_data['routes'][0]['geometry']['coordinates']
-        coordenadas_rota = [[lat, lon] for lon, lat in coordenadas_rota]  # Converter para [latitude, longitude]
-        
-        # Desenhar a rota no mapa
-        PolyLine(coordenadas_rota, color="red", weight=2.5, opacity=1).add_to(mapa)
+    # Desenhar a rota
+    rota = [coord, coordenadas_zona]
+    PolyLine(rota, color="blue", weight=2.5, opacity=1).add_to(mapa)
 
 # Exibir o mapa interativo
 folium_static(mapa)
