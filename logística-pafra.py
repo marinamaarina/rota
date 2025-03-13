@@ -3,76 +3,80 @@ import pandas as pd
 import folium
 from streamlit_folium import folium_static
 
-# Dados das zonas, bairros e principais vias
+# Dados das zonas, bairros e coordenadas
 data = {
     'Zona': ['Zona Central', 'Zona Norte', 'Zona Sul', 'Zona Leste', 'Zona Oeste', 'Zona Periférica'],
     'Bairros': [
-        ['Centro', 'Brasil', 'Morada da Colina', 'Fundinho', 'Lídice', 'Osvaldo Resende', 'Segismundo Pereira'],
-        ['Tibery', 'Jardim Canadá', 'Santa Rosa', 'Jardim Ipanema', 'São Jorge', 'Industrial'],
-        ['Santa Mônica', 'Jardim Patrícia', 'Parque do Sabiá', 'Alvorada', 'Universitário', 'Marta Helena'],
-        ['Chácaras Tubalina', 'Martins', 'São Sebastião', 'Chácara do Sol', 'Rosalvo', 'Luizote de Freitas'],
-        ['Jardim Europa', 'Jardim Brasília', 'Novo Mundo', 'Jardim das Palmeiras', 'Leste Industrial'],
-        ['Cidade Jardim', 'São Vicente', 'Luizote de Freitas', 'Dom Almir', 'Jardim Sorrilândia', 'Boa Vista']
+        'Centro, Brasil, Morada da Colina, Fundinho, Lídice, Osvaldo Resende, Segismundo Pereira',
+        'Tibery, Jardim Canadá, Bairro Santa Rosa, Jardim Ipanema, São Jorge, Industrial',
+        'Santa Mônica, Jardim Patrícia, Parque do Sabiá, Alvorada, Universitário, Marta Helena',
+        'Chácaras Tubalina, Martins, São Sebastião, Chácara do Sol, Rosalvo, Luizote de Freitas',
+        'Jardim Europa, Jardim Brasília, Jardim Novo Mundo, Jardim das Palmeiras, Leste Industrial',
+        'Cidade Jardim, São Vicente, Luizote de Freitas, Dom Almir, Jardim Sorrilândia, Boa Vista'
     ],
     'Principais Vias': [
-        ['Av. João Naves', 'Av. Rondon Pacheco', 'Rua Getúlio Vargas'],
-        ['Av. João Naves', 'Av. Três Moinhos', 'Rua da Balsa'],
-        ['Av. João Naves', 'Av. Jundiaí', 'Av. Rio Branco'],
-        ['Av. Getúlio Vargas', 'Av. Ester Furquim', 'Av. Cesário Alvim'],
-        ['Av. Cesário Alvim', 'Av. Paulo Gracindo', 'Av. JK'],
-        ['Av. Luizote', 'Av. Mário Palmério', 'Av. Anselmo Alves']
-    ]
+        'Avenida João Naves de Ávila, Avenida Rondon Pacheco, Rua Getúlio Vargas',
+        'Avenida João Naves de Ávila, Avenida dos Três Moinhos, Rua da Balsa',
+        'Avenida João Naves de Ávila, Avenida Jundiaí, Avenida Rio Branco',
+        'Avenida Getúlio Vargas, Avenida Ester Furquim, Avenida Cesário Alvim',
+        'Avenida Cesário Alvim, Avenida Paulo Gracindo, Avenida JK',
+        'Avenida Luizote de Freitas, Avenida Mário Palmério, Avenida Anselmo Alves dos Santos'
+    ],
+    'Latitude': [-18.9186, -18.8762, -18.9395, -18.9183, -18.9375, -18.9450],
+    'Longitude': [-48.2769, -48.2792, -48.2820, -48.2551, -48.3210, -48.2307]
 }
 
 df = pd.DataFrame(data)
 
-# PONTOS DE ESTOQUE
+# Definir pontos de **estoque**
 pontos_estoque = {
-    "📍 Santa Mônica (Estoque)": (-18.9395, -48.2820),
-    "📍 Madalena (Estoque)": (-18.9100, -48.3000)
+    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
+    "Madalena (Estoque)": (-18.9100, -48.3000)
 }
 
-# --- LAYOUT ---
-st.set_page_config(page_title="Logística Uberlândia", layout="wide")
+# Título
+st.title('📦 Gestão de Logística - Uberlândia')
 
-# TÍTULO COM COR FORTE
-st.markdown("<h1 style='text-align: center; color: #D72638;'>📦 Gestão de Logística</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border:2px solid #D72638'>", unsafe_allow_html=True)
+st.write("""
+🚚 **Análise de Estoque e Entrega em Uberlândia**  
+🔍 Escolha uma zona para ver os bairros e as principais vias de entrega.
+""")
 
-# --- SELEÇÃO DE ZONA ---
-zona_selecionada = st.selectbox('🔍 Escolha uma Zona:', df['Zona'])
+# **Campo de seleção de zona**
+zona_selecionada = st.selectbox('🎯 Selecione a Zona:', df['Zona'].unique())
 
-# --- EXIBIÇÃO DE DADOS ---
+# **Exibir bairros e vias correspondentes**
 if zona_selecionada:
-    zona_info = df[df['Zona'] == zona_selecionada].iloc[0]
+    bairros = df[df['Zona'] == zona_selecionada]['Bairros'].values[0]
+    vias = df[df['Zona'] == zona_selecionada]['Principais Vias'].values[0]
     
-    st.subheader(f"📌 Bairros na {zona_selecionada}")
-    st.write(" | ".join(zona_info['Bairros']))  
+    st.write(f"📌 **Bairros da {zona_selecionada}:**")
+    st.write(bairros)
 
-    st.subheader("🚦 Principais Vias")
-    st.write(" | ".join(zona_info['Principais Vias']))  
+    st.write(f"🚦 **Principais Vias da {zona_selecionada}:**")
+    st.write(vias)
 
-# --- MAPA ---
-st.subheader("🗺️ Estoques e Zonas no Mapa")
+# **Mapa das Zonas e Estoques**
+st.subheader('🗺️ Mapa de Uberlândia com Estoques')
 
 mapa = folium.Map(location=[-18.9186, -48.2769], zoom_start=12)
 
 # Marcar zonas
 for _, row in df.iterrows():
     folium.Marker(
-        location=[-18.9186, -48.2769],  # Posição centralizada
-        popup=row['Zona'],
+        location=[row['Latitude'], row['Longitude']],
+        popup=f"{row['Zona']}",
         tooltip=row['Zona'],
-        icon=folium.Icon(color="blue")
+        icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(mapa)
 
-# Marcar pontos de estoque
+# Marcar pontos de estoque corretamente
 for nome, coord in pontos_estoque.items():
     folium.Marker(
         location=coord,
         popup=nome,
         tooltip=nome,
-        icon=folium.Icon(color="green")
+        icon=folium.Icon(color="green", icon="cloud")  # Estoque em verde
     ).add_to(mapa)
 
 folium_static(mapa)
