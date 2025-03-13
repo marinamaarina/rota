@@ -31,7 +31,6 @@ df = pd.DataFrame(data)
 
 # Definir pontos de **estoque** (removendo "Madalena")
 pontos_estoque = {
-    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
     "Rua Professor Maria Castilho, 295": (-18.9180, -48.2800),  # Novo ponto
     "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.9200, -48.3050)  # Novo ponto
 }
