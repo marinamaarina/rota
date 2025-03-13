@@ -31,6 +31,7 @@ df = pd.DataFrame(data)
 
 # Definir pontos de **estoque** com as novas coordenadas
 pontos_estoque = {
+    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
     "Rua Professor Maria Castilho, 295": (-18.9234969, -48.2331072),  # Coordenada corrigida
     "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.8932489, -48.2712858)  # Coordenada corrigida
 }
@@ -80,27 +81,16 @@ for _, row in df.iterrows():
 
 # Marcar pontos de estoque corretamente
 for nome, coord in pontos_estoque.items():
-    distancia = geodesic(coord, coordenadas_zona).km
-    if distancia <= raio:
-        folium.Marker(
-            location=coord,
-            popup=f"{nome} - Distância: {distancia:.2f} km",
-            tooltip=f"{nome} - {distancia:.2f} km",
-            icon=folium.Icon(color="green", icon="cloud")
-        ).add_to(mapa)
+    folium.Marker(
+        location=coord,
+        popup=f"{nome}",
+        tooltip=f"{nome}",
+        icon=folium.Icon(color="green", icon="cloud")
+    ).add_to(mapa)
 
-        # Traçar linha entre o ponto de estoque e a zona selecionada
-        folium.PolyLine(
-            locations=[coord, coordenadas_zona],
-            color="blue",
-            weight=2.5,
-            opacity=1
-        ).add_to(mapa)
+# Exibir o mapa interativo
+folium_static(mapa)
 
-        # Calcular e exibir o tempo estimado de entrega
-        velocidade_media = 40  # km/h
-        tempo_estimado = distancia / velocidade_media
-        st.write(f"⏳ Tempo estimado de entrega de {nome} para a zona: {tempo_estimado:.2f} horas")
 
 # Exibir o mapa interativo
 folium_static(mapa)
