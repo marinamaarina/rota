@@ -3,7 +3,7 @@ import pandas as pd
 import folium
 from streamlit_folium import folium_static
 
-# Dados das zonas, bairros e coordenadas
+# Dados das zonas, bairros e principais vias
 data = {
     'Zona': ['Zona Central', 'Zona Norte', 'Zona Sul', 'Zona Leste', 'Zona Oeste', 'Zona Periférica'],
     'Bairros': [
@@ -15,12 +15,12 @@ data = {
         'Cidade Jardim, São Vicente, Luizote de Freitas, Dom Almir, Jardim Sorrilândia, Boa Vista'
     ],
     'Principais Vias': [
-        'Avenida João Naves de Ávila, Avenida Rondon Pacheco, Rua Getúlio Vargas',
-        'Avenida João Naves de Ávila, Avenida dos Três Moinhos, Rua da Balsa',
-        'Avenida João Naves de Ávila, Avenida Jundiaí, Avenida Rio Branco',
-        'Avenida Getúlio Vargas, Avenida Ester Furquim, Avenida Cesário Alvim',
-        'Avenida Cesário Alvim, Avenida Paulo Gracindo, Avenida JK',
-        'Avenida Luizote de Freitas, Avenida Mário Palmério, Avenida Anselmo Alves dos Santos'
+        'Av. João Naves de Ávila, Av. Rondon Pacheco, Rua Getúlio Vargas',
+        'Av. João Naves de Ávila, Av. Três Moinhos, Rua da Balsa',
+        'Av. João Naves de Ávila, Av. Jundiaí, Av. Rio Branco',
+        'Av. Getúlio Vargas, Av. Ester Furquim, Av. Cesário Alvim',
+        'Av. Cesário Alvim, Av. Paulo Gracindo, Av. JK',
+        'Av. Luizote de Freitas, Av. Mário Palmério, Av. Anselmo Alves dos Santos'
     ],
     'Latitude': [-18.9186, -18.8762, -18.9395, -18.9183, -18.9375, -18.9450],
     'Longitude': [-48.2769, -48.2792, -48.2820, -48.2551, -48.3210, -48.2307]
@@ -28,36 +28,45 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Definir pontos de **estoque**
+# PONTOS DE ESTOQUE
 pontos_estoque = {
-    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
-    "Madalena (Estoque)": (-18.9100, -48.3000)
+    "📍 Santa Mônica (Estoque)": (-18.9395, -48.2820),
+    "📍 Madalena (Estoque)": (-18.9100, -48.3000)
 }
 
-# Título
-st.title('📦 Gestão de Logística - Uberlândia')
+# --- LAYOUT DO STREAMLIT ---
+st.set_page_config(page_title="Logística Uberlândia", layout="wide")
 
-st.write("""
-🚚 **Análise de Estoque e Entrega em Uberlândia**  
-🔍 Escolha uma zona para ver os bairros e as principais vias de entrega.
-""")
+st.markdown("""
+<style>
+    .title { font-size: 36px; font-weight: bold; text-align: center; color: #333333; }
+    .subtitle { font-size: 24px; font-weight: bold; color: #444444; margin-top: 20px; }
+    .info { font-size: 18px; color: #555555; }
+    .table { font-size: 16px; text-align: center; }
+</style>
+""", unsafe_allow_html=True)
 
-# **Campo de seleção de zona**
-zona_selecionada = st.selectbox('🎯 Selecione a Zona:', df['Zona'].unique())
+# --- TÍTULO ---
+st.markdown('<p class="title">📦 Gestão de Logística - Uberlândia</p>', unsafe_allow_html=True)
 
-# **Exibir bairros e vias correspondentes**
+st.markdown('<p class="info">🚚 Selecione uma zona para visualizar bairros, vias principais e pontos de estoque.</p>', unsafe_allow_html=True)
+
+# --- SELEÇÃO DE ZONA ---
+zona_selecionada = st.selectbox('🔍 Escolha uma Zona:', df['Zona'].unique())
+
+# --- EXIBIÇÃO DE DADOS ---
 if zona_selecionada:
     bairros = df[df['Zona'] == zona_selecionada]['Bairros'].values[0]
     vias = df[df['Zona'] == zona_selecionada]['Principais Vias'].values[0]
-    
-    st.write(f"📌 **Bairros da {zona_selecionada}:**")
-    st.write(bairros)
 
-    st.write(f"🚦 **Principais Vias da {zona_selecionada}:**")
-    st.write(vias)
+    st.markdown(f'<p class="subtitle">📌 Bairros da {zona_selecionada}</p>', unsafe_allow_html=True)
+    st.write(f"✅ {bairros.replace(', ', '\n✅ ')}")  # Exibe cada bairro como um item de lista
 
-# **Mapa das Zonas e Estoques**
-st.subheader('🗺️ Mapa de Uberlândia com Estoques')
+    st.markdown(f'<p class="subtitle">🚦 Principais Vias</p>', unsafe_allow_html=True)
+    st.write(f"🛣 {vias.replace(', ', '\n🛣 ')}")  # Exibe cada via como um item de lista
+
+# --- MAPA INTERATIVO ---
+st.markdown('<p class="subtitle">🗺️ Mapa de Estoques e Zonas</p>', unsafe_allow_html=True)
 
 mapa = folium.Map(location=[-18.9186, -48.2769], zoom_start=12)
 
@@ -70,13 +79,13 @@ for _, row in df.iterrows():
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(mapa)
 
-# Marcar pontos de estoque corretamente
+# Marcar pontos de estoque
 for nome, coord in pontos_estoque.items():
     folium.Marker(
         location=coord,
         popup=nome,
         tooltip=nome,
-        icon=folium.Icon(color="green", icon="cloud")  # Estoque em verde
+        icon=folium.Icon(color="green", icon="cloud")  # Estoque agora verde
     ).add_to(mapa)
 
 folium_static(mapa)
