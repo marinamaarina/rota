@@ -29,10 +29,11 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Definir pontos de **estoque** (removendo "Madalena")
+# Definir pontos de **estoque**
 pontos_estoque = {
-    "Rua Professor Maria Castilho, 295": (-18.9180, -48.2800),  # Novo ponto
-    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.9200, -48.3050)  # Novo ponto
+    "Santa Mônica (Estoque)": (-18.9395, -48.2820),
+    "Rua Professor Maria Castilho, 295": (-18.9180, -48.2800),
+    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.9200, -48.3050)
 }
 
 # Título
@@ -45,6 +46,9 @@ st.write("""
 
 # **Campo de seleção de zona**
 zona_selecionada = st.selectbox('🎯 Selecione a Zona:', df['Zona'].unique())
+
+# **Campo de seleção de raio**
+raio = st.slider('🔘 Defina o raio de entrega (em km):', min_value=1, max_value=50, value=10)
 
 # **Exibir bairros e vias correspondentes**
 if zona_selecionada:
@@ -60,6 +64,10 @@ if zona_selecionada:
 # **Mapa das Zonas e Estoques**
 st.subheader('🗺️ Mapa de Uberlândia com Estoques e Rotas de Entrega')
 
+# Selecionando coordenadas da zona escolhida
+coordenadas_zona = df[df['Zona'] == zona_selecionada][['Latitude', 'Longitude']].values[0]
+
+# Criar o mapa
 mapa = folium.Map(location=[-18.9186, -48.2769], zoom_start=12)
 
 # Marcar zonas
@@ -71,27 +79,29 @@ for _, row in df.iterrows():
         icon=folium.Icon(color="blue", icon="info-sign")
     ).add_to(mapa)
 
-# Marcar pontos de estoque corretamente (incluindo os novos pontos)
+# Marcar pontos de estoque corretamente
 for nome, coord in pontos_estoque.items():
-    folium.Marker(
-        location=coord,
-        popup=nome,
-        tooltip=nome,
-        icon=folium.Icon(color="green", icon="cloud")  # Estoque em verde
-    ).add_to(mapa)
-
-# **Exibir rotas de entrega**
-# Vamos calcular a distância entre os pontos de estoque e os bairros da zona selecionada
-if zona_selecionada:
-    coordenadas_zona = df[df['Zona'] == zona_selecionada][['Latitude', 'Longitude']].values[0]
-    for nome, coord in pontos_estoque.items():
-        distancia = geodesic(coord, coordenadas_zona).km
+    distancia = geodesic(coord, coordenadas_zona).km
+    if distancia <= raio:
         folium.Marker(
             location=coord,
-            popup=f"{nome} - Distância até a Zona: {distancia:.2f} km",
+            popup=f"{nome} - Distância: {distancia:.2f} km",
             tooltip=f"{nome} - {distancia:.2f} km",
             icon=folium.Icon(color="green", icon="cloud")
         ).add_to(mapa)
+
+        # Traçar linha entre o ponto de estoque e a zona selecionada
+        folium.PolyLine(
+            locations=[coord, coordenadas_zona],
+            color="blue",
+            weight=2.5,
+            opacity=1
+        ).add_to(mapa)
+
+        # Calcular e exibir o tempo estimado de entrega
+        velocidade_media = 40  # km/h
+        tempo_estimado = distancia / velocidade_media
+        st.write(f"⏳ Tempo estimado de entrega de {nome} para a zona: {tempo_estimado:.2f} horas")
 
 # Exibir o mapa interativo
 folium_static(mapa)
