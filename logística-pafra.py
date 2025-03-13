@@ -1,7 +1,3 @@
-Compartilhar
-
-User
-Você disse:
 import streamlit as st
 import pandas as pd
 import folium
