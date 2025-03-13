@@ -32,8 +32,8 @@ df = pd.DataFrame(data)
 # Definir pontos de **estoque**
 pontos_estoque = {
     "Santa Mônica (Estoque)": (-18.9395, -48.2820),
-    "Rua Professor Maria Castilho, 295": (-18.9180, -48.2800),
-    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.9200, -48.3050)
+    "Rua Professor Maria Castilho, 295": (-18.9110, -48.2765),  # Coordenada ajustada
+    "Rua Rio Grande do Sul, 1963, Marta Helena": (-18.9245, -48.3060)  # Coordenada ajustada
 }
 
 # Título
@@ -105,4 +105,5 @@ for nome, coord in pontos_estoque.items():
 
 # Exibir o mapa interativo
 folium_static(mapa)
+
 
