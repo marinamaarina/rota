@@ -67,6 +67,16 @@ coordenadas_zona = df[df['Zona'] == zona_selecionada][['Latitude', 'Longitude']]
 # Criar o mapa
 mapa = folium.Map(location=[-18.9186, -48.2769], zoom_start=12)
 
+# Adicionar um polígono leve para destacar a zona selecionada
+folium.Circle(
+    location=coordenadas_zona,
+    radius=3000,  # Raio aproximado da zona (ajuste conforme necessário)
+    color="blue",
+    fill=True,
+    fill_color="blue",
+    fill_opacity=0.2  # Deixa a cor bem leve
+).add_to(mapa)
+
 # Marcar zonas
 for _, row in df.iterrows():
     folium.Marker(
